@@ -66,6 +66,7 @@ myReverseSpec =
 -- It returns the list unchanged for negative n.
 myDrop :: Int -> [a] -> [a]
 myDrop 0 as = as
+myDrop _ [] = []
 myDrop n (a:as)
   | n >= 0 = myDrop (n-1) as
   | otherwise = (a:as)
