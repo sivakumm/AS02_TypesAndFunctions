@@ -309,11 +309,13 @@ foldrLengthSpec =
 
 -- Implement the function `foldrMap`. It has the same behavior like `map`.
 -- Use the function `foldr`:
-foldrMap :: (a -> b) -> [a] -> [b]
-foldrMap _ [] = []
-foldrMap f [a] = [f a]
--- TODO Mithu: difficult, try again later
--- foldrMap f (a:as) = foldr (++) (foldrMap f [a]) (foldrMap f as)
+foldrMap :: (a -> b) -> [a] -> [b] 
+-- foldr :: (a -> b -> b) -> b -> [a] -> b
+-- plugin the resulting type expectation of `foldrMap` (b => [b]):
+-- foldr :: (a -> [b] -> [b]) -> [b] -> [a] -> [b]
+foldrMap f as = foldr (\x bs -> (f x):bs) [] as -- This was very very very difficult! I had aid from AI to solve this.
+
+
 
 foldrMapSpec :: Spec
 foldrMapSpec =
