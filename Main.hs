@@ -29,10 +29,10 @@ todo = error "TODO"
 -- There is only one solution each which is a total and terminating.
 -- Follow the types!
 riddleA :: ((a, b) -> c) -> (c -> d) -> (a, b) -> d
-riddleA = todo
+riddleA f1 f2 tuple = (f2.f1) tuple -- I first came up with `riddleA f1 f2 tuple = f2 (f1 tuple)`
 
 riddleB :: a -> ((a -> b) -> c) -> (a -> a -> b) -> c
-riddleB = todo
+riddleB a f1 f2 = (f1.f2) a -- again, I wrote first `f1 (f2 a)` and then resolved it to (f1.f2) a
 
 -------------------------------------------------------------------------------
 -- 1. Recursion on Lists
