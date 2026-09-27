@@ -40,7 +40,8 @@ riddleB = todo
 
 -- Implement the function `myLength`. It returns the length of a list:
 myLength :: [a] -> Int
-myLength = todo
+myLength [] = 0
+myLength (_:as) = 1 + myLength as
 
 myLengthSpec :: Spec
 myLengthSpec =
@@ -51,7 +52,8 @@ myLengthSpec =
 
 -- Implement the function myReverse. It reverses a list:
 myReverse :: [a] -> [a]
-myReverse = todo
+myReverse [] = []
+myReverse (a:as) = myReverse as ++ [a]
 
 myReverseSpec :: Spec
 myReverseSpec =
@@ -63,7 +65,10 @@ myReverseSpec =
 -- Implement the function drop. It drops the first n elements.
 -- It returns the list unchanged for negative n.
 myDrop :: Int -> [a] -> [a]
-myDrop = todo
+myDrop 0 as = as
+myDrop n (a:as)
+  | n >= 0 = myDrop (n-1) as
+  | otherwise = (a:as)
 
 myDropSpec :: Spec
 myDropSpec =
@@ -100,7 +105,8 @@ exTree =
 
 -- Implement the function preorder. It traverses a binary tree pre-order:
 preorder :: Bin a -> [a]
-preorder = todo
+preorder (Leaf a) = [a]
+preorder (Fork b a c) = [a] ++ preorder b ++ preorder c
 
 preorderSpec :: Spec
 preorderSpec =
@@ -111,7 +117,8 @@ preorderSpec =
 
 -- Implement the function inorder. It traverses a binary tree in-order:
 inorder :: Bin a -> [a]
-inorder = todo
+inorder (Leaf a) = [a]
+inorder (Fork a b c) = inorder a ++ [b] ++ inorder c
 
 inorderSpec :: Spec
 inorderSpec =
@@ -122,13 +129,14 @@ inorderSpec =
 
 -- Implement the function postorder. It traverses a binary tree post-order:
 postorder :: Bin a -> [a]
-postorder = todo
+postorder (Leaf a) = [a]
+postorder (Fork a b c) = postorder a ++ postorder c ++ [b]
 
 postorderSpec :: Spec
 postorderSpec =
   describe "postorder" $ do
     it "postorder (Leaf 1) == [1]" $ postorder (Leaf 1) `shouldBe` ([1] :: [Int])
-    it "postorder (Fork (Leaf 'a') 'b' (Leaf 'c')) == \"abc\"" $ postorder (Fork (Leaf 'a') 'b' (Leaf 'c')) `shouldBe` "acb"
+    it "postorder (Fork (Leaf 'a') 'b' (Leaf 'c')) == \"acb\"" $ postorder (Fork (Leaf 'a') 'b' (Leaf 'c')) `shouldBe` "acb"
     it "postorder exTree == \"acbegfd\"" $ postorder exTree `shouldBe` "acbegfd"
 
 -- Now we build a small calculator for rationals:
@@ -154,7 +162,9 @@ shorten (n :/: d) = (n `div` f) :/: (d `div` f)
 -- Hint: DIV can easy be implemented by MUL with the reciprocal
 evalOp :: Op -> Rat -> Rat -> Rat
 evalOp ADD (ln :/: ld) (rn :/: rd) = shorten (((ln * rd) + (rn * ld)) :/: (ld * rd))
-evalOp _ _ _ = todo
+evalOp SUB (ln :/: ld) (rn :/: rd) = shorten (((ln * rd) - (rn * ld)) :/: (ld * rd))
+evalOp MUL (ln :/: ld) (rn :/: rd) = shorten ((ln * rn) :/: (ld * rd))
+evalOp DIV (ln :/: ld) (rn :/: rd) = evalOp MUL (ln :/: ld) (rd :/: rn)
 
 evalOpSpec :: Spec
 evalOpSpec =
@@ -166,7 +176,8 @@ evalOpSpec =
 
 -- Now implement the `eval` function, which evaluates an expression:
 eval :: Expr -> Rat
-eval = todo
+eval (Val a) = a
+eval (Bin op exp1 exp2) = evalOp op (eval exp1) (eval exp2)
 
 -- Example expression:
 -- ((1/2) + (1/4)) * ((1/6) / (2/1))
@@ -211,7 +222,9 @@ languages =
 -- Implement your own version of the function `map`.
 -- It applies a function to every element in a list.
 myMap :: (a -> b) -> [a] -> [b]
-myMap = todo
+myMap _ [] = []
+myMap f [a] = [f a]
+myMap f (a:as) = [f a] ++ myMap f as
 
 myMapSpec :: Spec
 myMapSpec =
@@ -222,7 +235,10 @@ myMapSpec =
 -- Implement your own version of the function `filter`.
 -- It keeps only the elements which satisfy the predicate.
 myFilter :: (a -> Bool) -> [a] -> [a]
-myFilter = todo
+myFilter _ [] = []
+myFilter f (a:as) 
+  | f a = [a] ++ myFilter f as
+  | otherwise = myFilter f as
 
 myFilterSpec :: Spec
 myFilterSpec =
@@ -233,7 +249,8 @@ myFilterSpec =
 -- Implement the function `squares`. It squares every element in a list.
 -- Make use of the predefined function `map`:
 squares :: [Int] -> [Int]
-squares = todo
+squares [] = []
+squares (i:is) = [i * i] ++ squares is
 
 squaresSpec :: Spec
 squaresSpec =
@@ -244,7 +261,8 @@ squaresSpec =
 -- Implement the function `names`. It extracts the names of the languages.
 -- Make use of the predefined function `map`:
 names :: [Language] -> [String]
-names = todo
+names [] = [] -- QUESTION: is it necessary to delcare this? This scenario should be defined in `map` already and therefore unnecessary, right?
+names l = map name l
 
 namesSpec :: Spec
 namesSpec =
@@ -255,7 +273,8 @@ namesSpec =
 -- Implement the function `evens`. It keeps only the even values of a list.
 -- Use the function `filter` and the `even` function:
 evens :: [Int] -> [Int]
-evens = todo
+evens [] = []
+evens is = filter even is
 
 evensSpec :: Spec
 evensSpec =
@@ -266,7 +285,8 @@ evensSpec =
 -- Implement the function `likes`. It keeps only the functional languages:
 -- Use the function `filter` and write the predicate as a lambda expression:
 likes :: [Language] -> [Language]
-likes = todo
+likes [] = []
+likes ls = filter (\l -> (paradigm l) == Functional) ls -- QUESTION: I first tried `likes = filter (\l -> (paradigm l) == Functional)`, but that ended up in an error while compiling. Why?
 
 likesSpec :: Spec
 likesSpec =
@@ -278,7 +298,9 @@ likesSpec =
 -- Implement the function `foldrLength`. It computes the lengths of a list.
 -- Use the function `foldr`:
 foldrLength :: [a] -> Int
-foldrLength = todo
+foldrLength [] = 0
+foldrLength [_] = 1
+foldrLength (_:is) = foldr (+) (foldrLength is) [1] -- this one was difficult
 
 foldrLengthSpec :: Spec
 foldrLengthSpec =
@@ -288,7 +310,10 @@ foldrLengthSpec =
 -- Implement the function `foldrMap`. It has the same behavior like `map`.
 -- Use the function `foldr`:
 foldrMap :: (a -> b) -> [a] -> [b]
-foldrMap = todo
+foldrMap _ [] = []
+foldrMap f [a] = [f a]
+-- TODO Mithu: difficult, try again later
+-- foldrMap f (a:as) = foldr (++) (foldrMap f [a]) (foldrMap f as)
 
 foldrMapSpec :: Spec
 foldrMapSpec =
@@ -304,20 +329,21 @@ foldrMapSpec =
 -- Implement the "pipe operator" `|>` which allows to combine functions from left to right:
 -- The following should compile when uncommented and evaluate to 5.
 
--- res :: Int
--- res = (fst |> head |> length) (["hallo", "bla"], True)
+res :: Int
+res = (fst |> head |> length) (["hallo", "bla"], True)
 
 -- Hints:
 -- 1. First write down the type signature.
 -- 2. The operator needs to be surrounded by parenthesis in the type signature:
 -- Example: (<+>) :: Int -> Int -> Int
 
--- (|>) TODO
+(|>) :: (a -> b) -> (b -> c) -> (a -> c)
+(|>) f g = g . f
 
 -- Implement the function `flip'`.
 -- It takes a function and flips its first two arguments.
 flip' :: (a -> b -> c) -> (b -> a -> c)
-flip' = todo
+flip' f a b = f b a
 
 flip'Spec :: Spec
 flip'Spec =
@@ -326,8 +352,8 @@ flip'Spec =
 
 -- Implement the function `curry'`.
 -- It converts a function which takes a pair to a function which takes the arguments one after another.
-curry' :: ((a, b) -> c) -> (a -> b -> c)
-curry' = todo
+curry' :: ((a, b) -> c) -> (a -> b -> c) -- QUESTION: This is kind of difficult to understand for me, how this type signature actually matches with the implementation below.
+curry' f a b = f (a, b)
 
 curry'Spec :: Spec
 curry'Spec =
@@ -337,7 +363,7 @@ curry'Spec =
 -- Implement the function `uncurry' :: (a -> b -> c) -> ((a,b) -> c)`.
 -- It is the inverse of `curry'`: `curry' . uncurry' == id`:
 uncurry' :: (a -> b -> c) -> ((a, b) -> c)
-uncurry' = todo
+uncurry' f (a, b) = f a b -- It was only possible solve this, because I was thinking ov "reversing" curry' implementation. But I think I did not understand how and why this actually works like this.
 
 uncurry'Spec :: Spec
 uncurry'Spec =
